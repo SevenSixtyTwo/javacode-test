@@ -1,0 +1,39 @@
+config:
+  target: 'http://localhost:3030'
+  phases:
+    - duration: 60
+      arrivalRate: 1 
+      rampTo: 100 
+      name: Warm up phase
+    - duration: 60
+      arrivalRate: 100 
+      rampTo: 300 
+      name: Ramp up load
+    - duration: 30
+      arrivalRate: 300 
+      rampTo: 1000 
+      name: Spike phase
+  plugins: 
+    ensure: {}
+    apdex: {}
+    metrics-by-endpoint: {}
+  apdex:
+    threshold: 100
+  ensure:
+    thresholds:
+      - http.response_time.p99: 100
+      - http.response_time.p95: 75
+scenarios:
+  - flow:
+    - post:
+        url: '/api/v1/wallet'
+        json:
+          valletid: "37779eed-4f43-47af-8554-3ef03a68ad72"
+          operationType: "DEPOSIT"
+          amount: 100
+    - post:
+        url: '/api/v1/wallet'
+        json:
+          valletid: "37779eed-4f43-47af-8554-3ef03a68ad72"
+          operationType: "WITHDRAW"
+          amount: 99

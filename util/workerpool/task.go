@@ -8,7 +8,6 @@ import (
 
 type Task struct {
 	Err chan error
-	// Res chan interface{}
 
 	f func() error
 
@@ -28,13 +27,11 @@ func NewTask(f func() error, timeout *time.Duration) *Task {
 	return &Task{
 		f:       f,
 		timeout: *timeout,
-		// Res:     make(chan interface{}, 2),
-		Err: make(chan error, 2),
+		Err:     make(chan error, 2),
 	}
 }
 
 type response struct {
-	// Res	interface{}
 	Err error
 }
 

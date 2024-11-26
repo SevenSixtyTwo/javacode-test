@@ -23,9 +23,13 @@ func Deposit(ctx context.Context, db *pgxpool.Pool, log *slog.Logger, id uuid.UU
 					SET balance = balance + $1
 					WHERE id = $2`
 
-	_, err = tx.Exec(ctx, query, amount, id)
+	result, err := tx.Exec(ctx, query, amount, id)
 	if err != nil {
 		return fmt.Errorf("update bank accounts: %v", err)
+	}
+
+	if result.RowsAffected() == 0 {
+		return fmt.Errorf("wrong uuid")
 	}
 
 	log.Debug("executed DEPOSIT update")

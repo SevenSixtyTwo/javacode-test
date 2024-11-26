@@ -23,13 +23,13 @@ func Withdraw(ctx context.Context, db *pgxpool.Pool, log *slog.Logger, id uuid.U
 					SET balance = balance - $1 
 					WHERE id = $2 AND balance >= $1`
 
-	restult, err := tx.Exec(ctx, query, amount, id)
+	result, err := tx.Exec(ctx, query, amount, id)
 	if err != nil {
 		return fmt.Errorf("update bank accounts: %v", err)
 	}
 
-	if restult.RowsAffected() == 0 {
-		return fmt.Errorf("insufficient funds")
+	if result.RowsAffected() == 0 {
+		return fmt.Errorf("insufficient funds or wrong uuid")
 	}
 
 	log.Debug("executed WITHDRAW update")

@@ -33,7 +33,7 @@
 **Метод:** `GET`  
 **URL:** `api/v1/wallets/{WALLET_UUID}`
 
-**Body:**
+**Response:**
 ```json
 {
     "valletType": "UUID",

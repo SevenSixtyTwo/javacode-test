@@ -92,6 +92,7 @@ func main() {
 	dbp, err := db.GetPostgresDb(ctx)
 	if err != nil {
 		log.Error("db postgres", "error", err)
+		panic(fmt.Errorf("get db postgres %v", err))
 	}
 
 	wp := workerpool.NewPool(40, 400)
@@ -126,5 +127,6 @@ func main() {
 
 	if err := e.Start(":3030"); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Error("failed to start server", "error", err)
+		panic(fmt.Errorf("failed to start server %v", err))
 	}
 }

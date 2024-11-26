@@ -49,3 +49,19 @@
 * приложение должно запускаться в docker контейнере, база данных тоже, вся система должна подниматься с помощью docker-compose
 * необходимо покрыть приложение тестами
 * переменные окружения должны ситываться из файла config.env
+
+## Запуск
+
+### Запуск docker compose
+```bash
+docker-compose -f ./docker/docker-compose.yml up -d
+```
+
+### Добавление сервера в pgAdmin
+
+* Name: bank
+* Host name/address: postgres_container
+* Port: 5432
+* Maintenance database: bank
+* User: pguser 
+* Password: 1212 

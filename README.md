@@ -59,9 +59,9 @@ docker-compose -f ./docker/docker-compose.yml up -d
 
 ### Добавление сервера в pgAdmin
 
-* Name: bank
-* Host name/address: postgres_container
-* Port: 5432
-* Maintenance database: bank
-* User: pguser 
-* Password: 1212 
+* **Name:** bank
+* **Host name/address:** postgres_container
+* **Port:** 5432
+* **Maintenance database:** bank
+* **User:** pguser 
+* **Password:** 1212 

@@ -24,4 +24,4 @@ EXPOSE 3030
 
 CMD ["./program"]
 
-# docker build -f ./docker/Dockerfile -t api  
+# docker build -f ./docker/Dockerfile -t api . 

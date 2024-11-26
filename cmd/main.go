@@ -4,84 +4,18 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"javacode-test/api/structs"
+	apihanlders "javacode-test/internal/api-handlers"
 	ctxvalue "javacode-test/internal/ctx-value"
 	"javacode-test/internal/db"
-	dbhandlers "javacode-test/internal/db-handlers"
 	"javacode-test/internal/logger"
 	"javacode-test/util/workerpool"
 	"net/http"
-	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
-
-type Wallet struct {
-	ID        uuid.UUID `json:"valletid"`
-	Operation string    `json:"operationType"`
-	Balance   float64   `json:"amount"`
-}
-
-type CustomContext struct {
-	echo.Context
-	ctx context.Context
-}
-
-func updateBalance(c echo.Context) error {
-	cc := c.(*CustomContext)
-	log := ctxvalue.GetLog(cc.ctx)
-	db := ctxvalue.GetDbPostgres(cc.ctx)
-	wp := ctxvalue.GetWP(cc.ctx)
-
-	account := &Wallet{}
-	if err := c.Bind(account); err != nil {
-		log.Error("binding", "error", err)
-		return c.JSON(http.StatusBadRequest, account)
-	}
-
-	t := workerpool.NewTask(func() error {
-		if account.Operation == "WITHDRAW" {
-			return dbhandlers.Withdraw(cc.ctx, db, log, account.ID, account.Balance)
-		} else if account.Operation == "DEPOSIT" {
-			return dbhandlers.Deposit(cc.ctx, db, log, account.ID, account.Balance)
-		} else {
-			return fmt.Errorf("invalid operation")
-		}
-	}, nil)
-
-	wp.AddTask(t)
-
-	if err := <-t.Err; err != nil {
-		log.Error("update balance", "error", err)
-		if strings.Contains(err.Error(), "insufficient funds") {
-			return c.JSON(http.StatusBadRequest, "insufficient funds")
-		} else if strings.Contains(err.Error(), "invalid operation") {
-			return c.JSON(http.StatusBadRequest, "invalid operation")
-		}
-		return c.JSON(http.StatusInternalServerError, account)
-	}
-
-	return c.JSON(http.StatusOK, account)
-}
-
-func getBalance(c echo.Context) error {
-	cc := c.(*CustomContext)
-	db := ctxvalue.GetDbPostgres(cc.ctx)
-	log := ctxvalue.GetLog(cc.ctx)
-	id := uuid.MustParse(c.Param("uuid"))
-
-	balance, err := dbhandlers.GetBalance(cc.ctx, db, id)
-	if err != nil {
-		log.Error("get balance from db", "error", err)
-		return c.JSON(http.StatusInternalServerError, nil)
-	}
-
-	responseWallet := Wallet{id, "balance", balance}
-
-	return c.JSON(http.StatusOK, responseWallet)
-}
 
 func main() {
 	ctx := context.Background()
@@ -108,7 +42,7 @@ func main() {
 
 	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			cc := &CustomContext{c, ctx}
+			cc := &structs.CustomContext{c, ctx}
 			return next(cc)
 		}
 	})
@@ -121,9 +55,9 @@ func main() {
 		Timeout: time.Second * 20,
 	}))
 
-	e.POST("/api/v1/wallet", updateBalance)
+	e.POST("/api/v1/wallet", apihanlders.UpdateBalance)
 
-	e.GET("api/v1/wallets/:uuid", getBalance)
+	e.GET("/api/v1/wallets/:uuid", apihanlders.GetBalance)
 
 	if err := e.Start(":3030"); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Error("failed to start server", "error", err)

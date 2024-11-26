@@ -12,3 +12,9 @@ INSERT INTO bank.accounts (balance) VALUES (99090.12);
 INSERT INTO bank.accounts (balance) VALUES (654643.05);
 
 CREATE INDEX idx_account_balance ON bank.accounts (balance);
+
+CREATE USER api_user WITH PASSWORD 'api_password';
+
+GRANT USAGE ON SCHEMA bank TO api_user;
+
+GRANT SELECT, UPDATE ON bank.accounts TO api_user;

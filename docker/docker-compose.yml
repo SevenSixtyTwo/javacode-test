@@ -34,8 +34,8 @@ services:
       - "pg_stat_statements.track=all"
     environment:
       POSTGRES_DB: "bank"
-      POSTGRES_USER: "dee"
-      POSTGRES_PASSWORD: "deeeed"
+      POSTGRES_USER: "pguser"
+      POSTGRES_PASSWORD: "1212" 
       PGDATA: "/var/lib/postgresql/data/pgdata"
     volumes:
       - ./db:/docker-entrypoint-initdb.d
@@ -43,7 +43,7 @@ services:
     ports:
       - "6432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U dee -d bank"]
+      test: ["CMD-SHELL", "pg_isready -U pguser -d bank"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -53,7 +53,7 @@ services:
       resources:
         limits:
           cpus: '1'
-          memory: 4G
+          memory: 2G
     networks:
       - test_network 
 
@@ -61,8 +61,8 @@ services:
     container_name: pgadmin_container
     image: dpage/pgadmin4:8.13
     environment:
-      PGADMIN_DEFAULT_EMAIL: "dee@dee.com"
-      PGADMIN_DEFAULT_PASSWORD: "deeeed"
+      PGADMIN_DEFAULT_EMAIL: "pguser@pguser.com"
+      PGADMIN_DEFAULT_PASSWORD: "1212"
       PGADMIN_CONFIG_SERVER_MODE: "False"
     volumes:
       - pgadmin-data:/var/lib/pgadmin
@@ -75,7 +75,31 @@ services:
           cpus: '0.5'
           memory: 1G
     networks:
-      - test_network 
+      - test_network
+
+  api:
+    container_name: api_container
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    cap_drop:
+      - all
+    restart: on-failure 
+    deploy:
+      resources:
+        limits:
+          cpus: '3'
+          memory: 1G
+    image: api
+    ports:
+      - "3030:3030"
+    read_only: true
+    security_opt:
+      - "no-new-privileges=true"
+    depends_on:
+      - postgres
+    networks:
+      - test_network
 
 volumes:
   bank-data:
@@ -84,3 +108,6 @@ volumes:
 networks:
   test_network:
     driver: bridge
+
+# docker-compose -f ./docker/docker-compose.yml up -d
+# docker-compose -f ./docker/docker-compose.yml down -v

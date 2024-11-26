@@ -15,7 +15,11 @@ func GetBalance(c echo.Context) error {
 	cc := c.(*structs.CustomContext)
 	db := ctxvalue.GetDbPostgres(cc.Ctx)
 	log := ctxvalue.GetLog(cc.Ctx)
-	id := uuid.MustParse(c.Param("uuid"))
+
+	id, err := uuid.Parse(c.Param("uuid"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "wrong UUID")
+	}
 
 	balance, err := dbhandlers.GetBalance(cc.Ctx, db, id)
 	if err != nil {

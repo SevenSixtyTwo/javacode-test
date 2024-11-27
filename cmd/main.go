@@ -29,7 +29,7 @@ func main() {
 		panic(fmt.Errorf("get db postgres %v", err))
 	}
 
-	wp := workerpool.NewPool(40, 400)
+	wp := workerpool.NewPool(20, 1000)
 
 	wp.RunBackground()
 	defer wp.Stop()

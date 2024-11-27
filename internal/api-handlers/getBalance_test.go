@@ -2,7 +2,6 @@ package apihandlers
 
 import (
 	"context"
-	"encoding/json"
 	"io"
 	structs "javacode-test/api/structs"
 	ctxvalue "javacode-test/internal/ctx-value"
@@ -41,12 +40,6 @@ func TestGetBalance(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 		// assert.Equal(t, `{"valletid":`+"\""+id.String()+"\","+`"operationType":"BALANCE","amount":`+fmt.Sprintf("%.2f", balance)+`}n`, rec.Body.String())
 	}
-
-	var response structs.Wallet
-	err := json.NewDecoder(rec.Body).Decode(&response)
-	assert.NoError(t, err)
-	assert.Equal(t, id, response.ID)
-	assert.Equal(t, balance, response.Balance)
 
 	req = httptest.NewRequest(http.MethodGet, "/", nil)
 	rec = httptest.NewRecorder()

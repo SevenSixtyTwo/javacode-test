@@ -1,6 +1,7 @@
 package apihandlers
 
 import (
+	"errors"
 	structs "javacode-test/api/structs"
 	ctxvalue "javacode-test/internal/ctx-value"
 	dbhandlers "javacode-test/internal/db-handlers"
@@ -28,7 +29,7 @@ func GetBalance(c echo.Context) error {
 
 	balance, err := getDbBalance(cc.Ctx, id)
 	if err != nil {
-		if err == pgx.ErrNoRows {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return c.JSON(http.StatusBadRequest, "wrong UUID")
 		}
 		log.Error("get balance from db", "error", err)

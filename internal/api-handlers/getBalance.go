@@ -17,12 +17,12 @@ func GetBalance(c echo.Context) error {
 	cc := c.(*structs.CustomContext)
 	log := ctxvalue.GetLog(cc.Ctx)
 
-	if err := uuid.Validate(c.Param("uuid")); err != nil {
+	id, err := uuid.Parse(c.Param("uuid"))
+	if err != nil {
 		return c.JSON(http.StatusBadRequest, "wrong UUID")
 	}
 
-	id, err := uuid.Parse(c.Param("uuid"))
-	if err != nil {
+	if err := uuid.Validate(id.String()); err != nil {
 		return c.JSON(http.StatusBadRequest, "wrong UUID")
 	}
 

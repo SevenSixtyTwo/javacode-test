@@ -1,4 +1,4 @@
-package api
+package apihandlers
 
 import (
 	structs "javacode-test/api/structs"
@@ -11,17 +11,22 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+var getDbBalance = dbhandlers.DbBalance
+
 func GetBalance(c echo.Context) error {
 	cc := c.(*structs.CustomContext)
-	db := ctxvalue.GetDbPostgres(cc.Ctx)
 	log := ctxvalue.GetLog(cc.Ctx)
+
+	if err := uuid.Validate(c.Param("uuid")); err != nil {
+		return c.JSON(http.StatusBadRequest, "wrong UUID")
+	}
 
 	id, err := uuid.Parse(c.Param("uuid"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, "wrong UUID")
 	}
 
-	balance, err := dbhandlers.GetBalance(cc.Ctx, db, id)
+	balance, err := getDbBalance(cc.Ctx, id)
 	if err != nil {
 		if err == pgx.ErrNoRows {
 			return c.JSON(http.StatusBadRequest, "wrong UUID")

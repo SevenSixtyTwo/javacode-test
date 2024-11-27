@@ -3,13 +3,15 @@ package dbhandlers
 import (
 	"context"
 	"fmt"
-	"log/slog"
+	ctxvalue "javacode-test/internal/ctx-value"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func Withdraw(ctx context.Context, db *pgxpool.Pool, log *slog.Logger, id uuid.UUID, amount float64) error {
+func Withdraw(ctx context.Context, id uuid.UUID, amount float64) error {
+	db := ctxvalue.GetDbPostgres(ctx)
+	log := ctxvalue.GetLog(ctx)
+
 	tx, err := db.Begin(ctx)
 	if err != nil {
 		log.Error("begin transaction", "error", err)

@@ -3,12 +3,13 @@ package dbhandlers
 import (
 	"context"
 	"fmt"
+	ctxvalue "javacode-test/internal/ctx-value"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func GetBalance(ctx context.Context, db *pgxpool.Pool, id uuid.UUID) (float64, error) {
+func DbBalance(ctx context.Context, id uuid.UUID) (float64, error) {
+	db := ctxvalue.GetDbPostgres(ctx)
 	var balance float64
 	query := `SELECT balance 
 				FROM bank.accounts

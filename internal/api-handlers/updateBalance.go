@@ -1,4 +1,4 @@
-package api
+package apihandlers
 
 import (
 	structs "javacode-test/api/structs"
@@ -14,7 +14,6 @@ import (
 func UpdateBalance(c echo.Context) error {
 	cc := c.(*structs.CustomContext)
 	log := ctxvalue.GetLog(cc.Ctx)
-	db := ctxvalue.GetDbPostgres(cc.Ctx)
 	wp := ctxvalue.GetWP(cc.Ctx)
 
 	account := &structs.Wallet{}
@@ -27,11 +26,11 @@ func UpdateBalance(c echo.Context) error {
 
 	if account.Operation == "WITHDRAW" {
 		t = workerpool.NewTask(func() error {
-			return dbhandlers.Withdraw(cc.Ctx, db, log, account.ID, account.Balance)
+			return dbhandlers.Withdraw(cc.Ctx, account.ID, account.Balance)
 		}, nil)
 	} else if account.Operation == "DEPOSIT" {
 		t = workerpool.NewTask(func() error {
-			return dbhandlers.Deposit(cc.Ctx, db, log, account.ID, account.Balance)
+			return dbhandlers.Deposit(cc.Ctx, account.ID, account.Balance)
 		}, nil)
 	} else {
 		return c.JSON(http.StatusBadRequest, "invalid operation")
